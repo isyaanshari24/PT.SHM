@@ -489,6 +489,18 @@ body::after {
   border: 1px solid rgba(0,212,255,0.12);
   border-radius: 8px; padding: 5px 12px;
 }
+  .topbar-logo{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.topbar-logo img{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  object-fit:cover;
+}
 </style>
 </head>
 <body>
@@ -502,7 +514,9 @@ body::after {
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-brand">
-    <div class="topbar-logo">⚓</div>
+    <div class="topbar-logo">
+  <img src="logo.webp" alt="PT.SHM">
+</div>
     <div>
       <div class="topbar-name">PT. Sumber Hayati Mandiri</div>
       <div class="topbar-system">Sistem Absensi &amp; Manajemen Kapal</div>
