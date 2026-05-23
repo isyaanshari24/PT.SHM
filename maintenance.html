@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Maintenance — PT. Sumber Hayati Mandiri</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:    #060e1a;
+  --bg2:   #0b1828;
+  --bg3:   #0f2035;
+  --cyan:  #00d4ff;
+  --cyan2: #0099bb;
+  --gold:  #ffd166;
+  --green: #00e676;
+  --orange:#ffb300;
+  --red:   #ff5252;
+  --white: #e8f4ff;
+  --soft:  #7ab8d4;
+  --dim:   rgba(122,184,212,0.45);
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Nunito', sans-serif;
+  color: var(--white);
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ── SCANLINES OVERLAY ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,0,0.03) 3px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none; z-index: 999;
+}
+
+/* ── STARS ── */
+#stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.star {
+  position: absolute; background: #fff; border-radius: 50%;
+  animation: twinkle var(--dur) ease-in-out infinite var(--delay); opacity: 0;
+}
+@keyframes twinkle {
+  0%,100% { opacity: 0; transform: scale(0.5); }
+  50%      { opacity: var(--op); transform: scale(1); }
+}
+
+/* ── BG GRADIENT MESH ── */
+.mesh {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 15%, rgba(0,180,255,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 90% 80%, rgba(255,209,102,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(0,100,180,0.05) 0%, transparent 70%);
+}
+
+/* ── GRID LINES ── */
+.grid-bg {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ── FLOATING TOOLS ── */
+#floatIcons { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+.fi {
+  position: absolute; font-size: 1.6rem; opacity: 0.06;
+  animation: floatUp var(--fd) ease-in-out infinite var(--fdelay);
+}
+@keyframes floatUp {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0.04; }
+  50%  { opacity: 0.10; }
+  100% { transform: translateY(-40px) rotate(25deg); opacity: 0.04; }
+}
+
+/* ══════════════════════════════════
+   LAYOUT: TOP BAR
+══════════════════════════════════ */
+.topbar {
+  position: relative; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 32px 18px;
+  border-bottom: 1px solid rgba(0,212,255,0.10);
+  background: rgba(6,14,26,0.85);
+  backdrop-filter: blur(10px);
+}
+.topbar-brand {
+  display: flex; align-items: center; gap: 12px;
+}
+.topbar-logo {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--cyan2), #003f55);
+  border-radius: 10px;
+  border: 1.5px solid rgba(0,212,255,0.35);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+}
+.topbar-name {
+  font-size: 0.78rem; font-weight: 800;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--soft);
+}
+.topbar-system {
+  font-size: 0.65rem; color: rgba(122,184,212,0.5);
+  font-family: 'JetBrains Mono', monospace;
+}
+.topbar-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,82,82,0.12);
+  border: 1px solid rgba(255,82,82,0.3);
+  border-radius: 20px; padding: 6px 14px;
+  font-size: 0.72rem; font-weight: 800;
+  color: var(--red); letter-spacing: 1px; text-transform: uppercase;
+}
+.topbar-badge .blink {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--red); box-shadow: 0 0 8px var(--red);
+  animation: blink 1s infinite;
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* ══════════════════════════════════
+   LAYOUT: MAIN CONTENT
+══════════════════════════════════ */
+.main {
+  position: relative; z-index: 5;
+  max-width: 1100px; margin: 0 auto;
+  padding: 40px 24px 60px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto auto;
+  gap: 24px;
+}
+@media (max-width: 720px) {
+  .main { grid-template-columns: 1fr; padding: 24px 16px 48px; }
+  .topbar { padding: 16px 18px 14px; }
+  .topbar-name { font-size: 0.65rem; letter-spacing: 1px; }
+}
+
+/* ══════════════════════════════════
+   HERO SECTION (full width)
+══════════════════════════════════ */
+.hero {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 24px 36px;
+  background: linear-gradient(160deg, rgba(13,32,53,0.7) 0%, rgba(6,14,26,0.85) 100%);
+  border: 1px solid rgba(0,212,255,0.12);
+  border-radius: 24px;
+  position: relative; overflow: hidden;
+  animation: fadeUp 0.8s cubic-bezier(.34,1.56,.64,1) both;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0,212,255,0.06), transparent 70%);
+  pointer-events: none;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Gear cluster */
+.gear-cluster {
+  display: flex; align-items: center; justify-content: center; gap: -10px;
+  margin-bottom: 24px;
+}
+.gear-wrap {
+  position: relative; width: 80px; height: 80px;
+  animation: fadeUp 0.9s 0.1s both;
+}
+.gear-wrap.sm { width: 54px; height: 54px; margin-top: 14px; opacity: 0.6; }
+.gear-ring {
+  position: absolute; inset: 0;
+  border: 2px solid rgba(0,212,255,0.25); border-radius: 50%;
+  border-top-color: var(--cyan);
+  animation: spin 2.5s linear infinite;
+}
+.gear-ring2 {
+  position: absolute; inset: 8px;
+  border: 1.5px solid rgba(0,212,255,0.12); border-radius: 50%;
+  border-bottom-color: var(--cyan2);
+  animation: spin 3.5s linear infinite reverse;
+}
+.gear-emoji {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; animation: gearbob 3s ease-in-out infinite;
+}
+.gear-wrap.sm .gear-emoji { font-size: 1.4rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes gearbob {
+  0%,100% { transform: rotate(-6deg) scale(1); }
+  50%      { transform: rotate(6deg) scale(1.05); }
+}
+
+.hero-brand {
+  font-size: 0.7rem; font-weight: 800; letter-spacing: 4px;
+  color: var(--soft); text-transform: uppercase; margin-bottom: 8px;
+  animation: fadeUp 0.9s 0.2s both;
+}
+.hero-title {
+  font-family: 'Pacifico', cursive;
+  font-size: clamp(2.2rem, 6vw, 3.2rem);
+  color: var(--cyan);
+  text-shadow: 0 0 50px rgba(0,212,255,0.5), 0 0 100px rgba(0,212,255,0.2);
+  margin-bottom: 10px;
+  animation: fadeUp 0.9s 0.25s both;
+}
+.hero-sub {
+  font-size: 0.82rem; color: var(--soft); letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 32px;
+  animation: fadeUp 0.9s 0.3s both;
+}
+.hero-divider {
+  width: 80px; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  margin: 0 auto 28px;
+  animation: fadeUp 0.9s 0.35s both;
+}
+.hero-msg {
+  max-width: 480px; margin: 0 auto;
+  background: rgba(0,212,255,0.06);
+  border: 1px solid rgba(0,212,255,0.14);
+  border-radius: 16px; padding: 18px 24px;
+  font-size: 1rem; font-weight: 700; line-height: 1.7;
+  color: var(--white);
+  animation: fadeUp 0.9s 0.4s both;
+}
+.hero-msg .hl { color: var(--gold); }
+
+/* ══════════════════════════════════
+   CARD BASE
+══════════════════════════════════ */
+.card {
+  background: linear-gradient(150deg, rgba(13,29,48,0.92) 0%, rgba(8,16,28,0.96) 100%);
+  border: 1px solid rgba(0,212,255,0.12);
+  border-radius: 20px;
+  padding: 28px 26px;
+  position: relative; overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,212,255,0.3), transparent);
+}
+.card-icon { font-size: 1.6rem; margin-bottom: 12px; }
+.card-label {
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--soft); margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.card-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, rgba(0,212,255,0.2), transparent);
+}
+
+/* ══════════════════════════════════
+   MAINTENANCE ITEMS LIST
+══════════════════════════════════ */
+.items-card {
+  grid-column: 1 / -1;
+  animation: fadeUp 0.9s 0.5s both;
+}
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+.item {
+  background: rgba(0,212,255,0.04);
+  border: 1px solid rgba(0,212,255,0.10);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex; align-items: flex-start; gap: 14px;
+  transition: border-color 0.2s;
+}
+.item:hover { border-color: rgba(0,212,255,0.25); }
+.item-icon {
+  width: 38px; height: 38px; flex-shrink: 0;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+}
+.item-icon.blue   { background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.2); }
+.item-icon.gold   { background: rgba(255,209,102,0.10); border: 1px solid rgba(255,209,102,0.2); }
+.item-icon.green  { background: rgba(0,230,118,0.10); border: 1px solid rgba(0,230,118,0.2); }
+.item-icon.orange { background: rgba(255,179,0,0.10); border: 1px solid rgba(255,179,0,0.2); }
+.item-icon.red    { background: rgba(255,82,82,0.10); border: 1px solid rgba(255,82,82,0.2); }
+.item-body { flex: 1; min-width: 0; }
+.item-name {
+  font-size: 0.88rem; font-weight: 800; color: var(--white);
+  margin-bottom: 3px;
+}
+.item-desc {
+  font-size: 0.72rem; color: var(--dim); line-height: 1.5;
+}
+.item-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.62rem; font-weight: 800; letter-spacing: 0.5px;
+  padding: 3px 9px; border-radius: 20px; margin-top: 8px;
+}
+.tag-update  { background: rgba(0,212,255,0.12); color: var(--cyan); border: 1px solid rgba(0,212,255,0.25); }
+.tag-fix     { background: rgba(255,209,102,0.10); color: var(--gold); border: 1px solid rgba(255,209,102,0.25); }
+.tag-new     { background: rgba(0,230,118,0.10); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
+.tag-rebuild { background: rgba(255,82,82,0.10); color: var(--red); border: 1px solid rgba(255,82,82,0.25); }
+
+/* ══════════════════════════════════
+   PROGRESS CARD
+══════════════════════════════════ */
+.progress-card {
+  animation: fadeUp 0.9s 0.6s both;
+}
+.progress-total {
+  text-align: center; margin-bottom: 20px;
+}
+.progress-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 3rem; font-weight: 600;
+  color: var(--cyan);
+  text-shadow: 0 0 30px rgba(0,212,255,0.4);
+  line-height: 1;
+}
+.progress-pct-label {
+  font-size: 0.65rem; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--dim); margin-top: 4px;
+}
+.prog-items { display: flex; flex-direction: column; gap: 14px; }
+.prog-row { }
+.prog-row-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 7px;
+}
+.prog-name { font-size: 0.78rem; font-weight: 700; color: var(--white); }
+.prog-val  { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--soft); }
+.prog-track {
+  height: 5px; background: rgba(255,255,255,0.06);
+  border-radius: 10px; overflow: hidden;
+}
+.prog-fill {
+  height: 100%; border-radius: 10px;
+  width: var(--w);
+  animation: progIn 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--ad, 0.8s);
+  --start-w: 0%;
+}
+@keyframes progIn { from { width: var(--start-w); } to { width: var(--w); } }
+.prog-fill.cyan   { background: linear-gradient(90deg, var(--cyan2), var(--cyan)); box-shadow: 0 0 8px rgba(0,212,255,0.4); }
+.prog-fill.gold   { background: linear-gradient(90deg, #b88200, var(--gold)); box-shadow: 0 0 8px rgba(255,209,102,0.3); }
+.prog-fill.green  { background: linear-gradient(90deg, #007a40, var(--green)); box-shadow: 0 0 8px rgba(0,230,118,0.3); }
+.prog-fill.orange { background: linear-gradient(90deg, #8a5e00, var(--orange)); box-shadow: 0 0 8px rgba(255,179,0,0.3); }
+
+/* ══════════════════════════════════
+   STATUS CARD
+══════════════════════════════════ */
+.status-card {
+  animation: fadeUp 0.9s 0.65s both;
+}
+.status-list { display: flex; flex-direction: column; gap: 12px; }
+.status-row-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px;
+}
+.status-left { display: flex; align-items: center; gap: 10px; }
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  animation: pulse 2s infinite;
+  flex-shrink: 0;
+}
+.status-dot.green  { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.status-dot.orange { background: var(--orange); box-shadow: 0 0 8px var(--orange); animation-delay: 0.3s; }
+.status-dot.red    { background: var(--red); box-shadow: 0 0 8px var(--red); animation-delay: 0.6s; }
+.status-dot.cyan   { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); animation-delay: 0.9s; }
+@keyframes pulse {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.5); opacity: 0.6; }
+}
+.status-name { font-size: 0.82rem; font-weight: 700; }
+.status-pill {
+  font-size: 0.62rem; font-weight: 800; letter-spacing: 0.5px;
+  padding: 3px 10px; border-radius: 20px;
+}
+.pill-ok       { background: rgba(0,230,118,0.12); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
+.pill-updating { background: rgba(255,179,0,0.12); color: var(--orange); border: 1px solid rgba(255,179,0,0.25); }
+.pill-down     { background: rgba(255,82,82,0.12); color: var(--red); border: 1px solid rgba(255,82,82,0.25); }
+.pill-loading  { background: rgba(0,212,255,0.12); color: var(--cyan); border: 1px solid rgba(0,212,255,0.25); }
+
+/* ══════════════════════════════════
+   TIMELINE CARD
+══════════════════════════════════ */
+.timeline-card {
+  animation: fadeUp 0.9s 0.7s both;
+}
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.tl-item {
+  display: flex; gap: 14px;
+  padding-bottom: 18px; position: relative;
+}
+.tl-item:last-child { padding-bottom: 0; }
+.tl-line-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  flex-shrink: 0; width: 20px;
+}
+.tl-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px; position: relative; z-index: 1;
+}
+.tl-dot.done  { border-color: var(--green); background: rgba(0,230,118,0.2); }
+.tl-dot.done::after  { content: '✓'; font-size: 0.45rem; color: var(--green); }
+.tl-dot.active{ border-color: var(--cyan); background: rgba(0,212,255,0.15);
+                animation: pulse 2s infinite; }
+.tl-dot.active::after { content: ''; width: 4px; height: 4px; border-radius: 50%;
+                         background: var(--cyan); }
+.tl-dot.wait  { border-color: rgba(122,184,212,0.2); background: transparent; }
+.tl-connector {
+  flex: 1; width: 1px; margin: 3px 0 0;
+  background: rgba(122,184,212,0.12);
+  min-height: 20px;
+}
+.tl-item:last-child .tl-connector { display: none; }
+.tl-content { flex: 1; padding-top: 0; }
+.tl-title { font-size: 0.82rem; font-weight: 800; margin-bottom: 3px; }
+.tl-title.done   { color: var(--green); }
+.tl-title.active { color: var(--cyan); }
+.tl-title.wait   { color: var(--dim); }
+.tl-desc { font-size: 0.70rem; color: var(--dim); line-height: 1.5; }
+.tl-time { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: rgba(122,184,212,0.4); margin-top: 4px; }
+
+/* ══════════════════════════════════
+   FOOTER
+══════════════════════════════════ */
+.footer {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 20px 24px;
+  background: rgba(6,14,26,0.7);
+  border: 1px solid rgba(0,212,255,0.08);
+  border-radius: 16px;
+  animation: fadeUp 0.9s 0.75s both;
+}
+.footer-inner {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; flex-wrap: wrap;
+}
+.footer-dev {
+  display: flex; align-items: center; gap: 10px;
+}
+.footer-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan2), #003f55);
+  border: 2px solid rgba(0,212,255,0.35);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+.footer-name  { font-size: 0.82rem; font-weight: 800; }
+.footer-role  { font-size: 0.65rem; color: var(--dim); }
+.footer-sep   { width: 1px; height: 32px; background: rgba(0,212,255,0.15); }
+.footer-note  { font-size: 0.78rem; color: var(--dim); }
+.footer-note span { color: var(--cyan); font-weight: 700; }
+
+/* live clock */
+.clock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem; color: var(--soft);
+  background: rgba(0,212,255,0.06);
+  border: 1px solid rgba(0,212,255,0.12);
+  border-radius: 8px; padding: 5px 12px;
+}
+</style>
+</head>
+<body>
+
+<!-- Background layers -->
+<div id="stars"></div>
+<div class="mesh"></div>
+<div class="grid-bg"></div>
+<div id="floatIcons"></div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">⚓</div>
+    <div>
+      <div class="topbar-name">PT. Sumber Hayati Mandiri</div>
+      <div class="topbar-system">Sistem Absensi &amp; Manajemen Kapal</div>
+    </div>
+  </div>
+  <div class="topbar-badge">
+    <div class="blink"></div>
+    Under Maintenance
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="gear-cluster">
+      <div class="gear-wrap sm"><div class="gear-ring"></div><div class="gear-ring2"></div><div class="gear-emoji">⚙️</div></div>
+      <div class="gear-wrap" style="margin: 0 8px;"><div class="gear-ring"></div><div class="gear-ring2"></div><div class="gear-emoji">🛠️</div></div>
+      <div class="gear-wrap sm"><div class="gear-ring"></div><div class="gear-ring2"></div><div class="gear-emoji">⚙️</div></div>
+    </div>
+    <div class="hero-brand">PT. Sumber Hayati Mandiri</div>
+    <div class="hero-title">Under Maintenance</div>
+    <div class="hero-sub">Sistem Absensi &amp; Manajemen Kapal • Sedang Diperbarui</div>
+    <div class="hero-divider"></div>
+    <div class="hero-msg">
+      Mohon maaf atas ketidaknyamanannya 🙏<br>
+      Sistem sedang dalam proses <span class="hl">pembaruan &amp; peningkatan</span>.<br>
+      Kami akan segera kembali normal.
+    </div>
+  </div>
+
+  <!-- MAINTENANCE ITEMS -->
+  <div class="card items-card">
+    <div class="card-label">📋 Data yang Sedang Dimaintenance</div>
+    <div class="items-grid">
+
+      <div class="item">
+        <div class="item-icon blue">👤</div>
+        <div class="item-body">
+          <div class="item-name">Data Anggota &amp; Karyawan</div>
+          <div class="item-desc">Pembaruan struktur data profil, posisi jabatan, dan info kontak karyawan.</div>
+          <span class="item-tag tag-update">Update</span>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-icon gold">📅</div>
+        <div class="item-body">
+          <div class="item-name">Rekap Absensi Mingguan</div>
+          <div class="item-desc">Migrasi sistem rekap kehadiran ke format baru dengan validasi lebih ketat.</div>
+          <span class="item-tag tag-rebuild">Rebuild</span>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-icon blue">⚓</div>
+        <div class="item-body">
+          <div class="item-name">Manajemen Kapal</div>
+          <div class="item-desc">Penambahan fitur tambah/hapus kapal, dan pengelolaan posisi kru kapal.</div>
+          <span class="item-tag tag-new">New Feature</span>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-icon green">👷</div>
+        <div class="item-body">
+          <div class="item-name">Penugasan Kru Kapal</div>
+          <div class="item-desc">Perbaikan sistem assign posisi: Fitter, Welder, Helper, Piping per kapal.</div>
+          <span class="item-tag tag-fix">Fix</span>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-icon orange">📊</div>
+        <div class="item-body">
+          <div class="item-name">Laporan &amp; Ekspor Data</div>
+          <div class="item-desc">Perbaikan template laporan WhatsApp dan ekspor ke Google Sheets.</div>
+          <span class="item-tag tag-fix">Fix</span>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-icon blue">🔐</div>
+        <div class="item-body">
+          <div class="item-name">Role &amp; Hak Akses</div>
+          <div class="item-desc">Peninjauan ulang permission Admin dan Viewer, termasuk proteksi data sensitif.</div>
+          <span class="item-tag tag-update">Update</span>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-icon gold">🔗</div>
+        <div class="item-body">
+          <div class="item-name">Google Sheets Integration</div>
+          <div class="item-desc">Pembaruan Google Apps Script untuk sinkronisasi data absensi secara real-time.</div>
+          <span class="item-tag tag-update">Update</span>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-icon green">📱</div>
+        <div class="item-body">
+          <div class="item-name">Tampilan UI / UX</div>
+          <div class="item-desc">Perbaikan bottom navigation, responsivitas mobile, dan konsistensi tema visual.</div>
+          <span class="item-tag tag-fix">Fix</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PROGRESS CARD -->
+  <div class="card progress-card">
+    <div class="card-label">⚡ Progress Maintenance</div>
+    <div class="progress-total">
+      <div class="progress-pct" id="mainPct">0%</div>
+      <div class="progress-pct-label">Overall Completion</div>
+    </div>
+    <div class="prog-items">
+      <div class="prog-row">
+        <div class="prog-row-top">
+          <span class="prog-name">Backend &amp; Database</span>
+          <span class="prog-val" id="p1">0%</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill green" style="--w:90%; width:0%; --ad:0.9s;"></div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-row-top">
+          <span class="prog-name">Google Sheets Sync</span>
+          <span class="prog-val" id="p2">0%</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill cyan" style="--w:75%; width:0%; --ad:1.0s;"></div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-row-top">
+          <span class="prog-name">Fitur Manajemen Kapal</span>
+          <span class="prog-val" id="p3">0%</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill gold" style="--w:60%; width:0%; --ad:1.1s;"></div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-row-top">
+          <span class="prog-name">UI / Frontend</span>
+          <span class="prog-val" id="p4">0%</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill orange" style="--w:40%; width:0%; --ad:1.2s;"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATUS CARD -->
+  <div class="card status-card">
+    <div class="card-label">🔌 Status Sistem</div>
+    <div class="status-list">
+      <div class="status-row-item">
+        <div class="status-left">
+          <div class="status-dot green"></div>
+          <span class="status-name">Database Server</span>
+        </div>
+        <span class="status-pill pill-ok">Online</span>
+      </div>
+      <div class="status-row-item">
+        <div class="status-left">
+          <div class="status-dot orange"></div>
+          <span class="status-name">Google Apps Script</span>
+        </div>
+        <span class="status-pill pill-updating">Updating</span>
+      </div>
+      <div class="status-row-item">
+        <div class="status-left">
+          <div class="status-dot cyan"></div>
+          <span class="status-name">Backend API</span>
+        </div>
+        <span class="status-pill pill-loading">Loading</span>
+      </div>
+      <div class="status-row-item">
+        <div class="status-left">
+          <div class="status-dot red"></div>
+          <span class="status-name">Frontend App</span>
+        </div>
+        <span class="status-pill pill-down">Maintenance</span>
+      </div>
+      <div class="status-row-item">
+        <div class="status-left">
+          <div class="status-dot green"></div>
+          <span class="status-name">Google Sheets</span>
+        </div>
+        <span class="status-pill pill-ok">Online</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMELINE CARD -->
+  <div class="card timeline-card">
+    <div class="card-label">🗓️ Timeline Perbaikan</div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-line-wrap">
+          <div class="tl-dot done"></div>
+          <div class="tl-connector"></div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-title done">Backup &amp; Snapshot Data</div>
+          <div class="tl-desc">Seluruh data absensi &amp; kru kapal telah di-backup.</div>
+          <div class="tl-time">Selesai</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-line-wrap">
+          <div class="tl-dot done"></div>
+          <div class="tl-connector"></div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-title done">Migrasi Database</div>
+          <div class="tl-desc">Struktur database baru berhasil diterapkan.</div>
+          <div class="tl-time">Selesai</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-line-wrap">
+          <div class="tl-dot active"></div>
+          <div class="tl-connector"></div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-title active">Update Fitur &amp; Perbaikan Bug</div>
+          <div class="tl-desc">Sedang berlangsung: manajemen kapal, absensi, dan sinkronisasi Sheets.</div>
+          <div class="tl-time">Dalam proses…</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-line-wrap">
+          <div class="tl-dot wait"></div>
+          <div class="tl-connector"></div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-title wait">Testing &amp; QA</div>
+          <div class="tl-desc">Pengujian menyeluruh seluruh fitur sebelum diluncurkan.</div>
+          <div class="tl-time">Menunggu…</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-line-wrap">
+          <div class="tl-dot wait"></div>
+          <div class="tl-connector"></div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-title wait">Go Live</div>
+          <div class="tl-desc">Sistem kembali online dan siap digunakan.</div>
+          <div class="tl-time">Segera</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-inner">
+      <div class="footer-dev">
+        <div class="footer-avatar">🛠️</div>
+        <div>
+          <div class="footer-name">Developer</div>
+          <div class="footer-role">PT. Sumber Hayati Mandiri</div>
+        </div>
+      </div>
+      <div class="footer-sep"></div>
+      <div class="footer-note">
+        Terima kasih atas kesabarannya 🙏 •
+        <span>Akan segera kembali normal</span>
+      </div>
+      <div class="footer-sep"></div>
+      <div class="clock" id="clock">--:--:--</div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+/* ── Stars ── */
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 100; i++) {
+  const s = document.createElement('div'); s.className = 'star';
+  const sz = Math.random() * 2 + 0.5;
+  s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${(Math.random()*3+2).toFixed(1)}s;--delay:-${(Math.random()*5).toFixed(1)}s;--op:${(Math.random()*0.6+0.2).toFixed(2)};`;
+  starsEl.appendChild(s);
+}
+
+/* ── Floating icons ── */
+const icons = ["🔧","⚓","🔩","⚙️","🛠️","🔨","📡","💡","🗂️","📋"];
+const floatEl = document.getElementById('floatIcons');
+for (let i = 0; i < 14; i++) {
+  const f = document.createElement('div'); f.className = 'fi';
+  f.textContent = icons[i % icons.length];
+  f.style.cssText = `top:${Math.random()*90}%;left:${Math.random()*90}%;--fd:${(Math.random()*4+4).toFixed(1)}s;--fdelay:-${(Math.random()*7).toFixed(1)}s;`;
+  floatEl.appendChild(f);
+}
+
+/* ── Progress counters ── */
+function animCount(elId, target, delay) {
+  setTimeout(() => {
+    const el = document.getElementById(elId);
+    let cur = 0;
+    const iv = setInterval(() => {
+      if (cur >= target) { clearInterval(iv); return; }
+      cur++;
+      el.textContent = cur + '%';
+    }, 900 / target);
+  }, delay);
+}
+animCount('mainPct', 66, 1000);
+animCount('p1', 90, 900);
+animCount('p2', 75, 1000);
+animCount('p3', 60, 1100);
+animCount('p4', 40, 1200);
+
+/* ── Live Clock ── */
+function tick() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+}
+tick(); setInterval(tick, 1000);
+</script>
+</body>
+</html>
